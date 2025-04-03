@@ -1,0 +1,10 @@
+{
+    "id": "ExampleMod",
+    "name": "Example Mod",
+    "description": "An example mod description",
+    "type": "Angelscript",
+
+    "downloadLink": "",
+    "changeLog": "",
+    "dependencies": []
+}

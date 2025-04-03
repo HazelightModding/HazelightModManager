@@ -1,0 +1,6 @@
+
+.dragregion {
+    --webkit-app-region: drag;
+    --wails-draggable: drag;
+    }
+    
