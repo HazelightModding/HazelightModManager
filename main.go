@@ -2,6 +2,7 @@ package main
 
 import (
 	gameinstall "HazelightModManager/backend/gameInstall"
+	"HazelightModManager/backend/mod"
 	update "HazelightModManager/backend/update"
 	"embed"
 	"runtime"
@@ -36,6 +37,7 @@ func main() {
 			&gameinstall.GameInstallation{},
 			&update.UpdateManager{},
 			&gameinstall.PrecompiledScript{},
+			&mod.Mod{},
 		},
 	})
 
