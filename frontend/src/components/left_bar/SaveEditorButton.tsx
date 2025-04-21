@@ -3,13 +3,13 @@ import SVGIcon from "../ui/SVGIcon";
 import { useModManager } from "../../ModManagerState";
 
 export default function SaveEditorButton() {
-    const { setCurrentView } = useModManager();
+    const { changeView } = useModManager();
 
     return (
         <div id="SaveEditorButton" className="">
             <button
                 className="btn flex h-12 w-full items-center rounded-md bg-zinc-800 px-4 hover:brightness-120"
-                onClick={() => setCurrentView("SaveEditor")}
+                onClick={() => changeView("SaveEditor")}
             >
                 <span>Save Editor</span>
                 <div className="grow" />

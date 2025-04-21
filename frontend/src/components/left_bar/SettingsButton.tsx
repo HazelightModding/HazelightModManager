@@ -2,13 +2,13 @@ import { mdiCog } from "@mdi/js";
 import { useModManager } from "../../ModManagerState";
 
 export default function SettingsButton() {
-    const { setCurrentView } = useModManager();
+    const { changeView } = useModManager();
 
     return (
         <div id="SettingsButton" className="">
             <button
                 className="btn flex h-12 w-full items-center rounded-md bg-zinc-800 px-4 hover:brightness-120"
-                onClick={() => setCurrentView("Settings")}
+                onClick={() => changeView("Settings")}
             >
                 <span>Settings</span>
                 <div className="grow" />

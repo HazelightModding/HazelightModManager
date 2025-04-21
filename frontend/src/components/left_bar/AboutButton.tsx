@@ -5,13 +5,13 @@ import KofiLogo from "../../assets/images/kofi_symbol.png";
 import { BrowserOpenURL } from "../../../wailsjs/runtime/runtime";
 
 export default function AboutButton() {
-    const { setCurrentView } = useModManager();
+    const { changeView } = useModManager();
 
     return (
         <div id="AboutButton" className="flex gap-2">
             <button
                 className="btn bg-primary-2 flex h-12 w-full items-center rounded-md px-4 hover:brightness-120"
-                onClick={() => setCurrentView("About")}
+                onClick={() => changeView("About")}
             >
                 <span>About</span>
                 <div className="grow" />

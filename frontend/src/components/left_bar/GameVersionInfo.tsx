@@ -10,7 +10,7 @@ interface Props {
 }
 export default function GameVersionInfo(props: Props) {
     const {
-        setCurrentView,
+        changeView,
         gameInstalls,
         setGameInstalls,
         currentGame,
