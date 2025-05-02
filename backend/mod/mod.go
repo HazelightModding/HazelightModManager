@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -56,16 +57,16 @@ type LatestVersions struct {
 	Release ModVersionInfo `json:"release"`
 }
 
-func (a *Mod) GetAvailableMods(Game string) ([]ModSummary, error) {
+func (a *Mod) GetBrowsableMods(Game string) ([]ModSummary, error) {
 
-	modListPath := filepath.Join(os.Getenv("LOCALAPPDATA"), "HazelightModManager", "Mods", "ModList.json")
+	modListPath := filepath.Join(os.Getenv("LOCALAPPDATA"), "HazelightModManager", "ModList.json")
 
 	modListFile, err := os.Open(modListPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			fmt.Println("Mod list not found. Attempting to download...")
 
-			_, err := a.DownloadModList()
+			_, err := a.DownloadBrowsableModList()
 			if err != nil {
 				return nil, fmt.Errorf("failed to download mod list: %w", err)
 			}
@@ -94,8 +95,8 @@ func (a *Mod) GetAvailableMods(Game string) ([]ModSummary, error) {
 	}
 }
 
-func (a *Mod) DownloadModList() (bool, error) {
-	modListPath := filepath.Join(os.Getenv("LOCALAPPDATA"), "HazelightModManager", "Mods", "ModList.json")
+func (a *Mod) DownloadBrowsableModList() (bool, error) {
+	modListPath := filepath.Join(os.Getenv("LOCALAPPDATA"), "HazelightModManager", "ModList.json")
 
 	resp, err := http.Get("https://raw.githubusercontent.com/HazelightModding/HazelightMods/refs/heads/main/ModList.json")
 	if err != nil {
@@ -107,7 +108,6 @@ func (a *Mod) DownloadModList() (bool, error) {
 		return false, fmt.Errorf("unexpected status code downloading mod list: %d", resp.StatusCode)
 	}
 
-	// Save the downloaded file locally
 	if err := os.MkdirAll(filepath.Dir(modListPath), os.ModePerm); err != nil {
 		return false, fmt.Errorf("failed to create directory for mod list: %w", err)
 	}
@@ -125,11 +125,102 @@ func (a *Mod) DownloadModList() (bool, error) {
 	return true, nil
 }
 
-func GetAvailableLocalMods(Game string) {
+func (a *Mod) GetLocalMods(Game string) ([]ModSummary, error) {
 
+	gameFolder := ""
+	switch strings.ToLower(Game) {
+	case "split fiction":
+		gameFolder = "SplitFiction"
+	case "it takes two":
+		gameFolder = "ItTakesTwo"
+	}
+
+	modsFolder := filepath.Join(os.Getenv("LOCALAPPDATA"), "HazelightModManager", gameFolder, "Mods")
+
+	var localMods []ModSummary
+
+	err := filepath.WalkDir(modsFolder, func(path string, dir fs.DirEntry, err error) error {
+
+		if err != nil {
+			return err
+		}
+
+		if !dir.IsDir() {
+			return nil
+		}
+
+		entries, err := os.ReadDir(path)
+		if err != nil {
+			return err
+		}
+
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.EqualFold(entry.Name(), "mod.json") {
+				continue
+			}
+
+			jsonPath := filepath.Join(path, entry.Name())
+			content, err := os.ReadFile(jsonPath)
+			if err != nil {
+				continue
+			}
+
+			var details ModDetails
+			if err := json.Unmarshal(content, &details); err != nil || details.Name == "" {
+				continue
+			}
+
+			var summary ModSummary
+			summary.Name = details.Name
+			summary.URL = filepath.Join(path, "mod.json")
+			localMods = append(localMods, summary)
+
+			return fs.SkipDir
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return localMods, nil
 }
 
 func (a *Mod) GetModDetails(mod ModSummary) (ModDetails, error) {
+	url := strings.ToLower(mod.URL)
+	if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+		return a.GetModDetailsFromURL(mod)
+	}
+	return a.GetModDetailsFromFile(mod)
+}
+
+func (a *Mod) GetModDetailsFromFile(mod ModSummary) (ModDetails, error) {
+	content, err := os.ReadFile(mod.URL)
+	if err != nil {
+		return ModDetails{
+			Name:             mod.Name,
+			ShortDescription: "Failed to read local file",
+		}, err
+	}
+
+	var details ModDetails
+	if err := json.Unmarshal(content, &details); err != nil {
+		return ModDetails{
+			Name:             mod.Name,
+			ShortDescription: "Malformed json",
+		}, err
+	}
+
+	if details.Name == "" {
+		details.Name = mod.Name
+	}
+
+	return details, nil
+}
+
+func (a *Mod) GetModDetailsFromURL(mod ModSummary) (ModDetails, error) {
 	resp, err := http.Get(mod.URL)
 	if err != nil {
 		return ModDetails{
@@ -161,4 +252,47 @@ func (a *Mod) GetVisibleModDetails(mods []ModSummary) ([]ModDetails, error) {
 		details = append(details, modDetail)
 	}
 	return details, nil
+}
+
+func (a *Mod) DownloadModWithProgress(url string, destPath string, progressCallback func(percent float64)) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download file: status %s", resp.Status)
+	}
+
+	outFile, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+
+	totalSize := resp.ContentLength
+	if totalSize <= 0 {
+		return fmt.Errorf("unknown content length")
+	}
+
+	var downloaded int64 = 0
+	buffer := make([]byte, 32*1024) // 32 KB buffer
+	for {
+		n, err := resp.Body.Read(buffer)
+		if n > 0 {
+			outFile.Write(buffer[:n])
+			downloaded += int64(n)
+			percent := (float64(downloaded) / float64(totalSize)) * 100
+			progressCallback(percent)
+		}
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return err
+		}
+	}
+
+	return nil
 }

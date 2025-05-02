@@ -25,8 +25,8 @@ interface Mod {
 }
 
 interface ModManagerState {
-    currentGame: string;
-    setCurrentGame: (game: string) => void;
+    activeGame: string;
+    setActiveGame: (game: string) => void;
 
     currentView: string;
     changeView: (view: string) => void;
@@ -199,8 +199,8 @@ export function ModManagerState({ children }: { children: ReactNode }) {
     return (
         <ModManagerContext.Provider
             value={{
-                currentGame,
-                setCurrentGame,
+                activeGame: currentGame,
+                setActiveGame: setCurrentGame,
                 currentView,
                 changeView,
                 gameInstalls,

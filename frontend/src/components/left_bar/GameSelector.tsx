@@ -4,7 +4,7 @@ import ItTakesTwo from "../../assets/images/itTakesTwoFlat.png";
 import { useModManager } from "../../ModManagerState";
 
 export default function GameSelector() {
-    const { currentGame, setCurrentGame, installIndex, setInstallIndex, gameInstalls } = useModManager();
+    const { activeGame: currentGame, setActiveGame: setCurrentGame, installIndex, setInstallIndex, gameInstalls } = useModManager();
 
     return (
         <div className="flex h-25 items-center overflow-hidden rounded-md bg-zinc-800 flex-shrink-0">

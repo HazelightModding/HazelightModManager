@@ -4,7 +4,7 @@ import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react';
 import { useModManager } from "../../../ModManagerState";
 
 export default function SaveEditorView() {
-    const { currentGame } = useModManager();
+    const { activeGame: currentGame } = useModManager();
 
     const ItTakesTwoFiles = ["SaveData.Nuts", "LocalSettings.Nuts", "Settings.Nuts"];
     const SplitFictionFiles = ["SaveData.Split", "LocalSettings.Split", "Settings.Split", "StartupInfo.Split"];

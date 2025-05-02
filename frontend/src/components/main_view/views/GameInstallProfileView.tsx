@@ -3,7 +3,7 @@ import { useModManager } from "../../../ModManagerState";
 import NotImplementedView from "./NotImplementedView";
 
 export default function GameInstallProfileView() {
-    const { gameInstalls, currentGame } = useModManager();
+    const { gameInstalls, activeGame: currentGame } = useModManager();
     function PopulateInstallList() {
         return (
             <>

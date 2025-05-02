@@ -26,7 +26,7 @@ export default function GameLauncher(props: Props) {
     return (
         <>
             <div id="GameLauncher" className="flex gap-2">
-                <button className="btn flex h-12 w-full items-center rounded-md bg-green-600 px-4 hover:brightness-120">
+                <button className="btn flex h-12 w-full items-center rounded-md bg-lime-600 saturate-80 px-4 hover:brightness-120">
                     <span>Launch Game</span>
                     <div className="grow" />
                 </button>

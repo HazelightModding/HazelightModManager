@@ -13,7 +13,7 @@ export default function GameVersionInfo(props: Props) {
         changeView,
         gameInstalls,
         setGameInstalls,
-        currentGame,
+        activeGame: currentGame,
         currentGameInstall,
         installIndex,
         setInstallIndex,

@@ -2,9 +2,57 @@ package common
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+type Game struct {
+	Name        string
+	Id          string
+	ProjectName string
+
+	LocalAppdata string
+	GameDir      string
+	ScriptDir    string
+	ModsDir      string
+	TempDir      string
+}
+
+type Games struct {
+	ItTakesTwo   *Game
+	Splitfiction *Game
+}
+
+func NewGame(name, installPath string) (*Game, error) {
+	game := &Game{}
+
+	game.LocalAppdata = os.Getenv("LOCALAPPDATA")
+	if game.LocalAppdata == "" {
+		return nil, fmt.Errorf("LOCALAPPDATA not set")
+	}
+
+	switch strings.ToLower(name) {
+	case "split fiction":
+		game.Name = "Split Fiction"
+		game.Id = "SplitFiction"
+		game.ProjectName = "Split"
+	case "it takes two":
+		game.Name = "It Takes Two"
+		game.Id = "ItTakesTwo"
+		game.ProjectName = "Nuts"
+	default:
+		return nil, fmt.Errorf("unsupported game: %s", name)
+	}
+
+	game.GameDir = installPath
+	game.ModsDir = filepath.Join(game.LocalAppdata, game.Id, "Mods")
+	game.ScriptDir = filepath.Join(installPath, game.ProjectName, "Script")
+	game.TempDir = filepath.Join(os.TempDir(), "HazelightModManager")
+
+	return game, nil
+}
 
 type Version struct {
 	Major      int
@@ -76,13 +124,3 @@ func VersionFromString(versionStr string) (Version, error) {
 
 	return Version{Major: major, Minor: minor, Build: build, Revision: revision}, nil
 }
-
-type Game struct {
-	Name       string
-	Version    string
-	InstallDir string
-	ScriptDir  string
-}
-
-var ItTakesTwo = Game{Name: "It Takes Two"}
-var SplitFiction = Game{Name: "Split Fiction"}

@@ -28,7 +28,7 @@ export default function MainView(game: any) {
     
 
     return (
-        <div id="MainView" className="h-full w-full rounded-md bg-primary-2 p-2">
+        <div id="MainView" className="h-full w-full rounded-md overflow-hidden">
             {GetCurrentView(currentView)}
         </div>
     );

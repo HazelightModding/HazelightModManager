@@ -18,7 +18,7 @@ const Switch: React.FC<SwitchProps> = ({ checked = false, onChange }) => {
                 className={`slider bg-primary-1 absolute inset-0 flex items-center rounded-full transition-all duration-300`}
             >
                 <span
-                    className={`h-7 w-7 rounded-full transition-all duration-300 ${checked ? "bg-green-400" : "bg-red-500"} ${checked ? "translate-x-13 transform" : ""}`}
+                    className={`h-7 w-7 rounded-full transition-all duration-300 ${checked ? "bg-lime-400 saturate-80" : "bg-red-500"} ${checked ? "translate-x-13 transform" : ""}`}
                 ></span>
             </span>
         </label>

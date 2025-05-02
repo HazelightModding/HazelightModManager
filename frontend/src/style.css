@@ -4,6 +4,7 @@
     nocompatible: true;
 };
 
+
 :root {
     --primary-1: var(--color-zinc-100);
     --primary-2: var(--color-zinc-300);
@@ -56,6 +57,11 @@
     --color-accent-1: var(--accent-1);
 }
 
+@theme {
+    --breakpoint-2xl: 100rem;
+    --breakpoint-3xl: 120rem;
+}
+
 html {
     background-color: rgba(27, 38, 54, 1);
     text-align: center;
@@ -76,16 +82,17 @@ body {
         "Fira Sans",
         "Droid Sans",
         "Helvetica Neue",
+        "Poppins",
         sans-serif;
 }
 
 @font-face {
-    font-family: "Nunito";
+    font-family: "Poppins";
     font-style: normal;
     font-weight: 400;
     src:
         local(""),
-        url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+        url("assets/fonts/Poppins-Regular.ttf") format("ttf");
 }
 
 #app {
